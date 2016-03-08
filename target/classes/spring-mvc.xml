@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>  
+<beans xmlns="http://www.springframework.org/schema/beans"  
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"  
+       xmlns:context="http://www.springframework.org/schema/context"  
+       xmlns:aop="http://www.springframework.org/schema/aop" 
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="  
+       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd  
+       http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd  
+       http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd 
+       http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd  
+       ">
+  
+    <!-- 自动扫描controller包下的所有类，使其认为spring mvc的控制器 -->  
+    <context:component-scan base-package="com.zr.*" />  
+  
+    
+    <!-- 对模型视图名称的解析，即在模型视图名称添加前后缀 -->  
+    <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver" >  
+        <property name="prefix" value="/" />  
+        <property name="suffix" value=".jsp" />  
+    </bean>  
+    
+    <!-- 导入外部属性文件 -->
+    	<context:property-placeholder location="classpath:db.properties"/>
+    	<!-- 配置C3P0数据源 -->
+    	 <bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+    	 	<property name="user" value="${jdbc.user}"></property>
+    	 	<property name="password" value="${jdbc.password}"></property>
+    	 	<property name="driverClass" value="${jdbc.driverclass}"></property>
+    	 	<property name="jdbcUrl" value="${jdbc.jdbcurl}"></property>
+    	 	
+    	 	<property name="initialPoolSize" value="${jdbc.initPoolSize}"></property>
+    	 	<property name="maxPoolSize" value="${jdbc.maxPoolSize}"></property>
+    	 </bean>  
+    	 
+    	 <!-- 配置Spring jdbcTemplate -->
+    	 <bean id="jdbcTemplate"
+    	 	class="org.springframework.jdbc.core.JdbcTemplate">
+			<property name="dataSource" ref="dataSource"></property>    	 
+    	 </bean>
+    	 
+    	 <!-- 配置 NamedParameterJdbcTemplate,该方法可以使用具名参数（没有无参数的构造器，需要为其构造器指定一个值）-->
+    	 <bean id="namedParameterJdbcTemplate"
+    	 		class="org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate">
+    	 	<constructor-arg ref="dataSource"></constructor-arg>
+    	 </bean>
+    	 
+    	 <!-- 配置事务管理器 -->
+    	 <bean id="transactionManager"
+    	 	class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+    	 	<property name="dataSource" ref="dataSource"></property>
+    	 </bean>
+    	 
+    	 <!-- 启用事务注解 -->
+    	 <tx:annotation-driven transaction-manager="transactionManager"/>
+  
+</beans>  
